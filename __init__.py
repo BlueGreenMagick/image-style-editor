@@ -157,14 +157,12 @@ class Main:
             var div = document.createElement("div");
             div.setAttribute("id","temp");
             div.innerHTML = "{}";
-            document.body.appendChild(div);
             attrs = JSON.parse("{}")
-            e = document.querySelector('div#temp img[src="{}"]')
+            e = div.querySelector('div#temp img[src="{}"]')
             for(a in attrs){{
                 e.setAttribute(a,attrs[a])
             }}
             pycmd("attributeReturn#" + div.innerHTML);
-            document.body.removeChild(div);
         }}catch(err){{
             pycmd("err#" + err)
         }}
@@ -180,8 +178,7 @@ class Main:
             var div = document.createElement("div");
             div.setAttribute("id","temp");
             div.innerHTML = "{}"
-            document.body.appendChild(div);
-            e = document.querySelector('div#temp img[src="{}"]')
+            e = div.querySelector('div#temp img[src="{}"]')
             for(a = 0; a < attrs_name.length; a++){{
                 val = e.getAttribute(attrs_name[a])
                 if(val){{attrs[attrs_name[a]] = val}}
@@ -190,7 +187,6 @@ class Main:
             d = {{"a":attrs,"o":original}}
             d = JSON.stringify(d)
             pycmd("getImageAttribute#" + d)
-            document.body.removeChild(div);
         }}catch(err){{
             pycmd("err#" + err);
         }}
