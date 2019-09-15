@@ -159,12 +159,9 @@ class Main:
             div.innerHTML = "{}";
             document.body.appendChild(div);
             attrs = JSON.parse("{}")
-            elems = document.querySelectorAll('div#temp img[src="{}"]')
-            for(x = 0; x < elems.length; x++){{
-                e = elems[x]
-                for(a in attrs){{
+            e = document.querySelector('div#temp img[src="{}"]')[0]
+            for(a in attrs){{
                     e.setAttribute(a,attrs[a])
-                }}
             }}
             pycmd("attributeReturn#" + div.innerHTML);
             document.body.removeChild(div);
