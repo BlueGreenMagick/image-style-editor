@@ -211,7 +211,7 @@ def addToContextMenu(self,m):
     url = context_data.mediaUrl()
     image_name = url.fileName()
     path = os.path.join(mw.col.media.dir(), image_name)
-    if url.isValid() and path and main.lastCurrentField: 
+    if url.isValid() and path and main.lastCurrentField is not None: 
         a = m.addAction("Image Attribute")
         a.triggered.connect(lambda _, s=self.editor, n=image_name: main.open_edit_window(s,n))
 
