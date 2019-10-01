@@ -26,9 +26,12 @@ class UI(QWidget):
 
     def clicked_ok(self):
         styles = {
-            "width": self.widthEdit.text(),
-            "height": self.heightEdit.text()
+            "width": self.widthEdit.text().strip(),
+            "height": self.heightEdit.text().strip()
         }
+        for s in styles:
+            if re.match(r"^\d+?(\.\d+?)?$",styles[s]) is not None:
+                styles[s] += "px"
         self.main.modify_styles(styles)
         self.close()
 
@@ -57,7 +60,7 @@ class UI(QWidget):
 
     def check_valid_input(self, inp):
         valids = ["","auto","inherit","initial","unset"]
-        valid_re = r"^\d+?(\.\d+?)?(px|em|%)$"
+        valid_re = r"^\d+?(\.\d+?)?(px|em|%)?$"
         if inp in valids:
             return True
         elif re.match(valid_re,inp) is not None:
