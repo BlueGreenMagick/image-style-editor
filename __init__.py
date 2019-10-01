@@ -7,6 +7,7 @@ Anki Add-on: Image Style Editor
 import os
 import json
 import sys
+import re
 
 from aqt import mw
 from aqt.editor import EditorWebView, Editor
@@ -54,6 +55,33 @@ class UI(QWidget):
             elif o == "height":
                 self.originalHeight.setText(str(original[o]))
 
+    def check_valid_input(self, inp):
+        valids = ["","auto","inherit","initial","unset"]
+        valid_re = r"^\d+?(\.\d+?)?(px|em|%)$"
+        if inp in valids:
+            return True
+        elif re.match(valid_re,inp) is not None:
+            return True
+        else:
+            return False
+
+    def onchange(self, text, val_label):
+        if self.check_valid_input(text):
+            if val_label.isVisible():
+                val_label.hide()
+        else:
+            if not val_label.isVisible():
+                val_label.show()
+
+    def validate_label(self):
+        label = QLabel('Not a valid format!')
+        label.setStyleSheet("QLabel {color : red}")
+        policy = label.sizePolicy()
+        policy.setRetainSizeWhenHidden(True)
+        label.setSizePolicy(policy)
+        label.hide()
+        return label
+
     def hLine(self):
         line = QFrame()
         line.setFrameShape(QFrame.HLine)
@@ -66,33 +94,52 @@ class UI(QWidget):
             self.setLayout(mainLayout)
 
             # add widgets to set height and width
-            widthLable = QLabel('width')
-            heightLable = QLabel('height')
+            widthLabel = QLabel('width')
+            heightLabel = QLabel('height')
             self.widthEdit = QLineEdit(self)
+            self.widthValidate = self.validate_label()
+            self.heightValidate = self.validate_label()
+            self.widthEdit.textEdited.connect(lambda i, l=self.widthValidate: self.onchange(i, l))
             self.heightEdit = QLineEdit(self)
+            self.heightEdit.textEdited.connect((lambda i, l=self.heightValidate: self.onchange(i, l)))
 
-            sizeLayout = QHBoxLayout()
-            sizeLayout.addWidget(widthLable)
-            sizeLayout.addWidget(self.widthEdit)
-            sizeLayout.addWidget(heightLable)
-            sizeLayout.addWidget(self.heightEdit)
+            wLayout = QHBoxLayout()
+            wLayout.addWidget(widthLabel)
+            wLayout.addWidget(self.widthEdit)
+
+            hLayout = QHBoxLayout()
+            hLayout.addWidget(heightLabel)
+            hLayout.addWidget(self.heightEdit)
+
+            sizeInputLayout = QHBoxLayout()
+            sizeInputLayout.addLayout(wLayout)
+            sizeInputLayout.addLayout(hLayout)
+
+            labelLayout = QHBoxLayout()
+            labelLayout.addWidget(self.widthValidate)
+            labelLayout.addWidget(self.heightValidate)
+            
+            sizeLayout = QVBoxLayout()
+            sizeLayout.addLayout(sizeInputLayout)
+            sizeLayout.addLayout(labelLayout)
+
             mainLayout.addLayout(sizeLayout)
 
             # add an horizontal line
             mainLayout.addWidget(self.hLine())
 
             # add widgets to show original width, height
-            owidthLable = QLabel('original width')
-            oheightLable = QLabel('original height')
+            owidthLabel = QLabel('original width')
+            oheightLabel = QLabel('original height')
             self.originalWidth = QLineEdit(self)
             self.originalHeight = QLineEdit(self)
             self.disableLineEdit(self.originalWidth)
             self.disableLineEdit(self.originalHeight)
 
             sizeLayout2 = QHBoxLayout()
-            sizeLayout2.addWidget(owidthLable)
+            sizeLayout2.addWidget(owidthLabel)
             sizeLayout2.addWidget(self.originalWidth)
-            sizeLayout2.addWidget(oheightLable)
+            sizeLayout2.addWidget(oheightLabel)
             sizeLayout2.addWidget(self.originalHeight)
             mainLayout.addLayout(sizeLayout2)
 
