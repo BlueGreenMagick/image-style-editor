@@ -52,9 +52,9 @@ class UI(QWidget):
 
         for o in original:
             if o == "width":
-                self.originalWidth.setText(str(original[o]))
+                self.originalWidth.setText(str(original[o]) + "px")
             elif o == "height":
-                self.originalHeight.setText(str(original[o]))
+                self.originalHeight.setText(str(original[o]) + "px")
 
     def check_valid_input(self, inp):
         valids = ["", "auto", "inherit", "initial", "unset"]
@@ -138,7 +138,7 @@ class UI(QWidget):
         self.originalHeight = QLineEdit(self)
         self.disableLineEdit(self.originalWidth)
         self.disableLineEdit(self.originalHeight)
-        
+
         sizeLayout2 = QHBoxLayout()
         sizeLayout2.addWidget(owidthLabel)
         sizeLayout2.addWidget(self.originalWidth)
