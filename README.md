@@ -1,23 +1,22 @@
-# Image Attribute Modifier
+# Image Style Editor
 
-Addon for modifying image width and height. 
+This is an addon for editing image width and height. 
 
-# How to use
+## How to use
 
-Right click on an image in editor, and click on 'Image Attribute'
+Right click on an image in editor, click on 'Image Styles'.
 
-# Difference from Image-Resizer
+Accepted formats are: `300`, `240px`, `20em`, `60%`, `auto`, `inherit`, `initial`, `unset`, and empty. Plain numbers(eg. `300`) are automatically converted to `300px`. Trailing and leading spaces are removed. 
 
-### Pros
+You can set either only the width or the height, leave the other blank, and the image should retain its aspect ratio. If it doesn't, try going into config, and change `empty_means` to `auto`.
 
-* This add-on uses html img height and width attributes to resize images, so there is no loss of quality.
-* You can modify width and height individually
+## Difference from ImageResizer
 
-### Cons
-
+* This add-on uses css height and width properties to resize images, so there is no loss of quality.
+* You can modify width and height individually for each image
 * Does not automatically resize images on paste.
 
-# Credits
+## Credits
 
-Thanks to searene, and glutanimate. Parts of their addons' (Image Resizer, Image Occlusion) code were reused in this addon.
-
+Credits to searene, developer of the addon [ImageResizer](https://github.com/searene/Anki-Addons/tree/master/ImageResizer)'. Some of the code for gui were reused in this addon. 
+Also to glutanimate(Aristotelis P.) and others who made the addon [Image Occlusion Enhanced](https://github.com/glutanimate/image-occlusion-enhanced), which was how I figured this addon would be possible to make.
