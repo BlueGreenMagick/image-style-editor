@@ -168,12 +168,7 @@ class UI(QWidget):
 
     def disableLineEdit(self, lineEdit):
         lineEdit.setReadOnly(True)
-
-        # change color
-        palette = QPalette()
-        palette.setColor(QPalette.Base, Qt.gray)
-        lineEdit.setPalette(palette)
-
+        lineEdit.setStyleSheet("QLineEdit {background-color : lightgrey}")
 
 class Main:
 
