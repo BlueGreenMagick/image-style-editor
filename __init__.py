@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Anki Add-on: Image Style Editor
 """
@@ -30,7 +28,7 @@ class UI(QWidget):
             "height": self.heightEdit.text().strip()
         }
         for s in styles:
-            if re.match(r"^\d+?(\.\d+?)?$",styles[s]) is not None:
+            if re.match(r"^\d+?(\.\d+?)?$", styles[s]) is not None:
                 styles[s] += "px"
         self.main.modify_styles(styles)
         self.close()
@@ -39,10 +37,10 @@ class UI(QWidget):
         self.close()
 
     def clicked_reset(self):
-        self.fill_in(self.original_styles, self.original)
+        self.fill_in(self.prev_styles, self.original)
 
-    def set_original_styles(self, styles):
-        self.original_styles = styles
+    def set_prev_styles(self, styles):
+        self.prev_styles = styles
 
     def fill_in(self, styles, original):
         self.original = original
@@ -59,11 +57,11 @@ class UI(QWidget):
                 self.originalHeight.setText(str(original[o]))
 
     def check_valid_input(self, inp):
-        valids = ["","auto","inherit","initial","unset"]
+        valids = ["", "auto", "inherit", "initial", "unset"]
         valid_re = r"^\d+?(\.\d+?)?(px|em|%)?$"
         if inp in valids:
             return True
-        elif re.match(valid_re,inp) is not None:
+        elif re.match(valid_re, inp) is not None:
             return True
         else:
             return False
@@ -91,102 +89,102 @@ class UI(QWidget):
         line.setFrameShadow(QFrame.Sunken)
         return line
 
-    def setupUI(self):
-            # main layout
-            mainLayout = QVBoxLayout()
-            self.setLayout(mainLayout)
-
-            # add widgets to set height and width
-            widthLabel = QLabel('width')
-            heightLabel = QLabel('height')
-            self.widthEdit = QLineEdit(self)
-            self.widthValidate = self.validate_label()
-            self.heightValidate = self.validate_label()
-            self.widthEdit.textEdited.connect(lambda i, l=self.widthValidate: self.onchange(i, l))
-            self.heightEdit = QLineEdit(self)
-            self.heightEdit.textEdited.connect((lambda i, l=self.heightValidate: self.onchange(i, l)))
-
-            wLayout = QHBoxLayout()
-            wLayout.addWidget(widthLabel)
-            wLayout.addWidget(self.widthEdit)
-
-            hLayout = QHBoxLayout()
-            hLayout.addWidget(heightLabel)
-            hLayout.addWidget(self.heightEdit)
-
-            sizeInputLayout = QHBoxLayout()
-            sizeInputLayout.addLayout(wLayout)
-            sizeInputLayout.addLayout(hLayout)
-
-            labelLayout = QHBoxLayout()
-            labelLayout.addWidget(self.widthValidate)
-            labelLayout.addWidget(self.heightValidate)
-            
-            sizeLayout = QVBoxLayout()
-            sizeLayout.addLayout(sizeInputLayout)
-            sizeLayout.addLayout(labelLayout)
-
-            mainLayout.addLayout(sizeLayout)
-
-            # add an horizontal line
-            mainLayout.addWidget(self.hLine())
-
-            # add widgets to show original width, height
-            owidthLabel = QLabel('original width')
-            oheightLabel = QLabel('original height')
-            self.originalWidth = QLineEdit(self)
-            self.originalHeight = QLineEdit(self)
-            self.disableLineEdit(self.originalWidth)
-            self.disableLineEdit(self.originalHeight)
-
-            sizeLayout2 = QHBoxLayout()
-            sizeLayout2.addWidget(owidthLabel)
-            sizeLayout2.addWidget(self.originalWidth)
-            sizeLayout2.addWidget(oheightLabel)
-            sizeLayout2.addWidget(self.originalHeight)
-            mainLayout.addLayout(sizeLayout2)
-
-            # add OK and Cancel buttons
-            okButton = QPushButton("OK")
-            okButton.clicked.connect(self.clicked_ok)
-            cancelButton = QPushButton("Cancel")
-            cancelButton.clicked.connect(self.clicked_cancel)
-            resetButton = QPushButton("Reset")
-            resetButton.clicked.connect(self.clicked_reset)
-            btnLayout = QHBoxLayout()
-            btnLayout.addStretch(1)
-            btnLayout.addWidget(okButton)
-            btnLayout.addWidget(cancelButton)
-            btnLayout.addWidget(resetButton)
-            mainLayout.addLayout(btnLayout)
-
-            # center the window
-            self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
-
-            self.setWindowTitle('Style Editor')
-            self.show()
-
     def disableLineEdit(self, lineEdit):
         lineEdit.setReadOnly(True)
         lineEdit.setStyleSheet("QLineEdit {background-color : lightgrey}")
 
+    def setupUI(self):
+        mainLayout = QVBoxLayout()
+        self.setLayout(mainLayout)
+
+        # add widgets to set height and width
+        widthLabel = QLabel('width')
+        heightLabel = QLabel('height')
+        self.widthEdit = QLineEdit(self)
+        self.widthValidate = self.validate_label()
+        self.heightValidate = self.validate_label()
+        self.widthEdit.textEdited.connect(lambda i, v=self.widthValidate: self.onchange(i, v))
+        self.heightEdit = QLineEdit(self)
+        self.heightEdit.textEdited.connect(lambda i, v=self.heightValidate: self.onchange(i, v))
+
+        wLayout = QHBoxLayout()
+        wLayout.addWidget(widthLabel)
+        wLayout.addWidget(self.widthEdit)
+
+        hLayout = QHBoxLayout()
+        hLayout.addWidget(heightLabel)
+        hLayout.addWidget(self.heightEdit)
+
+        sizeInputLayout = QHBoxLayout()
+        sizeInputLayout.addLayout(wLayout)
+        sizeInputLayout.addLayout(hLayout)
+
+        labelLayout = QHBoxLayout()
+        labelLayout.addWidget(self.widthValidate)
+        labelLayout.addWidget(self.heightValidate)
+
+        sizeLayout = QVBoxLayout()
+        sizeLayout.addLayout(sizeInputLayout)
+        sizeLayout.addLayout(labelLayout)
+
+        # add final layout to main layout
+        mainLayout.addLayout(sizeLayout)
+        mainLayout.addWidget(self.hLine())
+
+        # add widgets to show original width, height
+        owidthLabel = QLabel('original width')
+        oheightLabel = QLabel('original height')
+        self.originalWidth = QLineEdit(self)
+        self.originalHeight = QLineEdit(self)
+        self.disableLineEdit(self.originalWidth)
+        self.disableLineEdit(self.originalHeight)
+        
+        sizeLayout2 = QHBoxLayout()
+        sizeLayout2.addWidget(owidthLabel)
+        sizeLayout2.addWidget(self.originalWidth)
+        sizeLayout2.addWidget(oheightLabel)
+        sizeLayout2.addWidget(self.originalHeight)
+        mainLayout.addLayout(sizeLayout2)
+
+        # add buttons
+        okButton = QPushButton("OK")
+        okButton.clicked.connect(self.clicked_ok)
+        cancelButton = QPushButton("Cancel")
+        cancelButton.clicked.connect(self.clicked_cancel)
+        resetButton = QPushButton("Reset")
+        resetButton.clicked.connect(self.clicked_reset)
+
+        btnLayout = QHBoxLayout()
+        btnLayout.addStretch(1)
+        btnLayout.addWidget(okButton)
+        btnLayout.addWidget(cancelButton)
+        btnLayout.addWidget(resetButton)
+        mainLayout.addLayout(btnLayout)
+
+        # center the window
+        self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
+
+        self.setWindowTitle('Style Editor')
+        self.show()
+
+
 class Main:
 
     def __init__(self):
-        self.lastCurrentField = None
-        
+        self.prev_curr_field = None
+
     def fill_in(self, styles, original):
         if self.style_editor:
-            self.style_editor.set_original_styles(styles)
+            self.style_editor.set_prev_styles(styles)
             self.style_editor.fill_in(styles, original)
 
     def open_edit_window(self, editor, name):
-        self.name = name
         self.editor = editor
+        self.name = name
         self.style_editor = UI(self, editor, name)
         editor.saveNow(self.get_styles)
 
-    def e(self,s):
+    def escape(self, s):
         s = s.replace('"', '\\"')
         s = s.replace("'", "\\'")
         return s
@@ -195,14 +193,16 @@ class Main:
         """
             styles: string of dictionary of {name:value}
         """
+        # replace if one empty input with string in user config
         empty_replacer = mw.addonManager.getConfig(__name__)["empty_means"]
         if empty_replacer:
             if styles["width"] and not styles["height"]:
                 styles["height"] = empty_replacer
             elif not styles["width"] and styles["height"]:
                 styles["width"] = empty_replacer
-        
-        cur_fld = self.lastCurrentField
+
+        e = self.escape
+        cur_fld = self.prev_curr_field
         fld = self.editor.note.fields[cur_fld]
         self.editor.web.eval("""
         try{{
@@ -217,10 +217,11 @@ class Main:
         }}catch(err){{
             pycmd("err#" + err)
         }}
-        """.format(self.e(fld),self.e(json.dumps(styles)),self.e(self.name)))
+        """.format(e(fld), e(json.dumps(styles)), e(self.name)))
 
     def get_styles(self):
-        cur_fld = self.lastCurrentField
+        e = self.escape
+        cur_fld = self.prev_curr_field
         fld = self.editor.note.fields[cur_fld]
         self.editor.web.eval("""
         try{{
@@ -240,25 +241,27 @@ class Main:
         }}catch(err){{
             pycmd("err#" + err);
         }}
-        """.format(self.e(fld),self.e(self.name)))
+        """.format(e(fld), e(self.name)))
 
     def modify_fields(self, txt):
         editor = self.editor
-        cur_fld = self.lastCurrentField
+        cur_fld = self.prev_curr_field
         editor.note.fields[cur_fld] = txt
         editor.note.flush()
         editor.loadNote(focusTo=cur_fld)
-        
+
 
 main = Main()
 
-def addToContextMenu(self,m):
+
+def addToContextMenu(self, m):
     context_data = self.page().contextMenuData()
     url = context_data.mediaUrl()
     image_name = url.fileName()
-    if url.isValid() and main.lastCurrentField is not None: 
+    if url.isValid() and main.prev_curr_field is not None:
         a = m.addAction("Image Styles")
-        a.triggered.connect(lambda _, s=self.editor, n=image_name: main.open_edit_window(s,n))
+        a.triggered.connect(lambda _, s=self.editor, n=image_name: main.open_edit_window(s, n))
+
 
 def onBridgeCmd(self, cmd, _old):
     if not self.note or not runHook:
@@ -268,7 +271,7 @@ def onBridgeCmd(self, cmd, _old):
         main.modify_fields(cmd)
 
     elif cmd.startswith("getImageStyle#"):
-        cmd = cmd.replace("getImageStyle#","")
+        cmd = cmd.replace("getImageStyle#", "")
         ret = json.loads(cmd)
         main.fill_in(ret["s"], ret["o"])
     elif cmd.startswith("err#"):
@@ -276,11 +279,13 @@ def onBridgeCmd(self, cmd, _old):
     else:
         if cmd.startswith("focus"):
             (type, num) = cmd.split(":", 1)
-            main.lastCurrentField = int(num)
+            main.prev_curr_field = int(num)
         return _old(self, cmd)
+
 
 def onProfileLoaded():
     Editor.onBridgeCmd = wrap(Editor.onBridgeCmd, onBridgeCmd, "around")
+
 
 addHook("EditorWebView.contextMenuEvent", addToContextMenu)
 addHook("profileLoaded", onProfileLoaded)
