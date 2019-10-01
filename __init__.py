@@ -155,10 +155,9 @@ class Main:
         self.editor.web.eval("""
         try{{
             var div = document.createElement("div");
-            div.setAttribute("id","temp");
             div.innerHTML = "{}";
             attrs = JSON.parse("{}")
-            e = div.querySelector('div#temp img[src="{}"]')
+            e = div.querySelector('img[src="{}"]')
             for(a in attrs){{
                 e.setAttribute(a,attrs[a])
             }}
@@ -176,9 +175,8 @@ class Main:
             attrs_name = ['width','height']
             attrs = {{}}
             var div = document.createElement("div");
-            div.setAttribute("id","temp");
             div.innerHTML = "{}"
-            e = div.querySelector('div#temp img[src="{}"]')
+            e = div.querySelector('img[src="{}"]')
             for(a = 0; a < attrs_name.length; a++){{
                 val = e.getAttribute(attrs_name[a])
                 if(val){{attrs[attrs_name[a]] = val}}
