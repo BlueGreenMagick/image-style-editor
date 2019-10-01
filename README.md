@@ -10,11 +10,11 @@ Accepted formats are: `300`, `240px`, `20em`, `60%`, `auto`, `inherit`, `initial
 
 You can set either only the width or the height, leave the other blank, and the image should retain its aspect ratio. If it doesn't, try going into config, and change `empty_means` to `auto`.
 
-## Difference from ImageResizer
+## Differences from ImageResizer
 
-* This add-on uses css height and width properties to resize images, so there is no loss of quality.
+* Uses css height and width properties to resize images, so there is no loss of quality.
 * You can modify width and height individually for each image
-* Does not automatically resize images on paste.
+* Can't automatically resize images on paste.
 
 ## Credits
 
