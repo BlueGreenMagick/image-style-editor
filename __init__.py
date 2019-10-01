@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Anki Add-on: Image Attribute Editor
+Anki Add-on: Image Style Editor
 """
 
 import os
@@ -24,29 +24,29 @@ class UI(QWidget):
         self.setupUI()
 
     def clicked_ok(self):
-        attrs = {
+        styles = {
             "width": self.widthEdit.text(),
             "height": self.heightEdit.text()
         }
-        self.main.modify_attributes(attrs)
+        self.main.modify_styles(styles)
         self.close()
 
     def clicked_cancel(self):
         self.close()
 
     def clicked_reset(self):
-        self.fill_in(self.original_attrs, self.original)
+        self.fill_in(self.original_styles, self.original)
 
-    def set_original_attrs(self, attrs):
-        self.original_attrs = attrs
+    def set_original_styles(self, styles):
+        self.original_styles = styles
 
-    def fill_in(self, attrs, original):
+    def fill_in(self, styles, original):
         self.original = original
-        for a in attrs:
+        for a in styles:
             if a == "width":
-                self.widthEdit.setText(attrs[a])
+                self.widthEdit.setText(styles[a])
             elif a == "height":
-                self.heightEdit.setText(attrs[a])
+                self.heightEdit.setText(styles[a])
 
         for o in original:
             if o == "width":
@@ -113,7 +113,7 @@ class UI(QWidget):
             # center the window
             self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
 
-            self.setWindowTitle('Attribute Editor')
+            self.setWindowTitle('Style Editor')
             self.show()
 
     def disableLineEdit(self, lineEdit):
@@ -130,25 +130,25 @@ class Main:
     def __init__(self):
         self.lastCurrentField = None
         
-    def fill_in(self, attrs, original):
-        if self.attr_editor:
-            self.attr_editor.set_original_attrs(attrs)
-            self.attr_editor.fill_in(attrs, original)
+    def fill_in(self, styles, original):
+        if self.style_editor:
+            self.style_editor.set_original_styles(styles)
+            self.style_editor.fill_in(styles, original)
 
     def open_edit_window(self, editor, name):
         self.name = name
         self.editor = editor
-        self.attr_editor = UI(self, editor, name)
-        editor.saveNow(self.get_attributes)
+        self.style_editor = UI(self, editor, name)
+        editor.saveNow(self.get_styles)
 
     def e(self,s):
         s = s.replace('"', '\\"')
         s = s.replace("'", "\\'")
         return s
 
-    def modify_attributes(self, attrs):
+    def modify_styles(self, styles):
         """
-            attrs: string of dictionary of {name:value}
+            styles: string of dictionary of {name:value}
         """
         cur_fld = self.lastCurrentField
         fld = self.editor.note.fields[cur_fld]
@@ -156,35 +156,35 @@ class Main:
         try{{
             var div = document.createElement("div");
             div.innerHTML = "{}";
-            attrs = JSON.parse("{}")
+            styles = JSON.parse("{}")
             e = div.querySelector('img[src="{}"]')
-            for(a in attrs){{
-                e.setAttribute(a,attrs[a])
+            for(a in styles){{
+                e.style[a] = styles[a]
             }}
-            pycmd("attributeReturn#" + div.innerHTML);
+            pycmd("htmlReturn#" + div.innerHTML);
         }}catch(err){{
             pycmd("err#" + err)
         }}
-        """.format(self.e(fld),self.e(json.dumps(attrs)),self.e(self.name)))
+        """.format(self.e(fld),self.e(json.dumps(styles)),self.e(self.name)))
 
-    def get_attributes(self):
+    def get_styles(self):
         cur_fld = self.lastCurrentField
         fld = self.editor.note.fields[cur_fld]
         self.editor.web.eval("""
         try{{
-            attrs_name = ['width','height']
-            attrs = {{}}
+            css_names = ['width','height']
+            styles = {{}}
             var div = document.createElement("div");
             div.innerHTML = "{}"
             e = div.querySelector('img[src="{}"]')
-            for(a = 0; a < attrs_name.length; a++){{
-                val = e.getAttribute(attrs_name[a])
-                if(val){{attrs[attrs_name[a]] = val}}
+            for(a = 0; a < css_names.length; a++){{
+                val = e.style[css_names[a]]
+                if(val){{styles[css_names[a]] = val}}
             }}
             original = {{"height": e.naturalHeight, "width": e.naturalWidth}}
-            d = {{"a":attrs,"o":original}}
+            d = {{"s":styles,"o":original}}
             d = JSON.stringify(d)
-            pycmd("getImageAttribute#" + d)
+            pycmd("getImageStyle#" + d)
         }}catch(err){{
             pycmd("err#" + err);
         }}
@@ -205,20 +205,20 @@ def addToContextMenu(self,m):
     url = context_data.mediaUrl()
     image_name = url.fileName()
     if url.isValid() and main.lastCurrentField is not None: 
-        a = m.addAction("Image Attribute")
+        a = m.addAction("Image Styles")
         a.triggered.connect(lambda _, s=self.editor, n=image_name: main.open_edit_window(s,n))
 
 def onBridgeCmd(self, cmd, _old):
     if not self.note or not runHook:
         return
-    if cmd.startswith("attributeReturn#"):
-        cmd = cmd.replace("attributeReturn#", "")
+    if cmd.startswith("htmlReturn#"):
+        cmd = cmd.replace("htmlReturn#", "")
         main.modify_fields(cmd)
 
-    elif cmd.startswith("getImageAttribute#"):
-        cmd = cmd.replace("getImageAttribute#","")
-        attr = json.loads(cmd)
-        main.fill_in(attr["a"], attr["o"])
+    elif cmd.startswith("getImageStyle#"):
+        cmd = cmd.replace("getImageStyle#","")
+        ret = json.loads(cmd)
+        main.fill_in(ret["s"], ret["o"])
     elif cmd.startswith("err#"):
         sys.stderr.write(cmd)
     else:
