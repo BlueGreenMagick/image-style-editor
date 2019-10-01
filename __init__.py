@@ -150,6 +150,13 @@ class Main:
         """
             styles: string of dictionary of {name:value}
         """
+        empty_replacer = mw.addonManager.getConfig(__name__)["empty_means"]
+        if empty_replacer:
+            if styles["width"] and not styles["height"]:
+                styles["height"] = empty_replacer
+            elif not styles["width"] and styles["height"]:
+                styles["width"] = empty_replacer
+        
         cur_fld = self.lastCurrentField
         fld = self.editor.note.fields[cur_fld]
         self.editor.web.eval("""
