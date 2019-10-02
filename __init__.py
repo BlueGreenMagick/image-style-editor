@@ -78,7 +78,7 @@ class UI(QWidget):
 
     def check_valid_input(self, inp):
         valids = ["", "auto", "inherit", "initial", "unset"]
-        valid_re = r"^\d+?(\.\d+?)?(px|em|%)?$"
+        valid_re = r"^\d+(?:\.\d+)?(?:px|em|%)?$|^(?:(?:var)|(?:calc)|(?:attr))\([\s\S]*\)$"
         if inp in valids:
             return True
         elif re.match(valid_re, inp) is not None:
