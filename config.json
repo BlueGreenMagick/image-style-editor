@@ -1,4 +1,6 @@
 {
-    "empty_means": ""
+    "empty_means": "",
+    "max-size": false,
+    "min-size": false
 }
   

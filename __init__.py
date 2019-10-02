@@ -20,6 +20,7 @@ class UI(QWidget):
         self.editor = editor
         self.image_name = img_name
         self.main = main
+        self.config = mw.addonManager.getConfig(__name__)
         self.setupUI()
 
     def clicked_ok(self):
@@ -27,6 +28,13 @@ class UI(QWidget):
             "width": self.widthEdit.text().strip(),
             "height": self.heightEdit.text().strip()
         }
+        if self.config["min-size"]:
+            styles["min-width"] = self.min-widthEdit.text().strip()
+            styles["min-height"] = self.min-heightEdit.text().strip()
+        if self.config["max-size"]:
+            styles["max-width"] = self.max-widthEdit.text().strip()
+            styles["max-height"] = self.max-heightEdit.text().strip()
+
         for s in styles:
             if re.match(r"^\d+?(\.\d+?)?$", styles[s]) is not None:
                 styles[s] += "px"
@@ -45,10 +53,22 @@ class UI(QWidget):
     def fill_in(self, styles, original):
         self.original = original
         for a in styles:
+            val = styles[a]
             if a == "width":
-                self.widthEdit.setText(styles[a])
+                self.widthEdit.setText(val)
             elif a == "height":
-                self.heightEdit.setText(styles[a])
+                self.heightEdit.setText(val)
+            else:
+                if self.config["min-size"]:
+                    if a == "min-width":
+                        self.minWidthEdit.setText(val)
+                    elif a == "min-height":
+                        self.minHeightEdit.setText(val)
+                if self.config["max-size"]:
+                    if a == "max-width":
+                        self.maxWidthEdit.setText(val)
+                    elif a == "max-height":
+                        self.maxHeightEdit.setText(val)
 
         for o in original:
             if o == "width":
@@ -130,6 +150,39 @@ class UI(QWidget):
         # add final layout to main layout
         mainLayout.addLayout(sizeLayout)
         mainLayout.addWidget(self.hLine())
+
+        # add min- sizes and max- sizes
+        if self.config["min-size"]:
+            minWidthLabel = QLabel("min-width")
+            minHeightLabel = QLabel("min-height")
+            self.minWidthEdit = QLineEdit(self)
+            self.minHeightEdit = QLineEdit(self)
+            minLayout = QHBoxLayout()
+            minLayout.addWidget(minWidthLabel)
+            minLayout.addWidget(self.minWidthLabel)
+            minLayout.addWidget(minHeightLabel)
+            minLayout.addWidget(self.minHeightEdit)
+            self.minWidthEdit.textEdited.connect(lambda i, v=self.widthValidate: self.onchange(i, v))
+            self.minHeightEdit.textEdited.connect(lambda i, v=self.heightValidate: self.onchange(i, v))
+
+            mainLayout.addLayout(minLayout)
+            mainLayout.addWidget(self.hLine())
+
+        if self.config["max-size"]:
+            maxWidthLabel = QLabel("max-width")
+            maxHeightLabel = QLabel("max-height")
+            self.maxWidthEdit = QLineEdit(self)
+            self.maxHeightEdit = QLineEdit(self)
+            maxLayout = QHBoxLayout()
+            maxLayout.addWidget(maxWidthLabel)
+            maxLayout.addWidget(self.maxWidthEdit)
+            maxLayout.addWidget(maxHeightLabel)
+            maxLayout.addWidget(self.maxHeightEdit)
+            self.maxWidthEdit.textEdited.connect(lambda i, v=self.widthValidate: self.onchange(i, v))
+            self.maxHeightEdit.textEdited.connect(lambda i, v=self.heightValidate: self.onchange(i, v))
+
+            mainLayout.addLayout(maxLayout)
+            mainLayout.addWidget(self.hLine())
 
         # add widgets to show original width, height
         owidthLabel = QLabel('original width')
@@ -225,7 +278,7 @@ class Main:
         fld = self.editor.note.fields[cur_fld]
         self.editor.web.eval("""
         try{{
-            css_names = ['width','height']
+            css_names = ['width','height','min-height','min-width','max-height','max-width']
             styles = {{}}
             var div = document.createElement("div");
             div.innerHTML = "{}"
