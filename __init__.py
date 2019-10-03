@@ -159,7 +159,7 @@ class UI(QWidget):
             self.minHeightEdit = QLineEdit(self)
             minLayout = QHBoxLayout()
             minLayout.addWidget(minWidthLabel)
-            minLayout.addWidget(self.minWidthLabel)
+            minLayout.addWidget(self.minWidthEdit)
             minLayout.addWidget(minHeightLabel)
             minLayout.addWidget(self.minHeightEdit)
             self.minWidthEdit.textEdited.connect(lambda i, v=self.widthValidate: self.onchange(i, v))
