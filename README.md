@@ -6,7 +6,7 @@ This is an addon for editing image width and height.
 
 Right click on an image in editor, click on 'Image Styles'.
 
-Accepted formats are: `300`, `240px`, `20em`, `60%`, `auto`, empty, [etc](https://developer.mozilla.org/en-US/docs/Web/CSS/height). Plain numbers(eg. `300`) are automatically converted to `300px`. Trailing and leading spaces are removed. 
+Accepted formats are: `300`, `240px`, `20em`, `60%`, `auto`,`--somestring`, empty, [etc](https://developer.mozilla.org/en-US/docs/Web/CSS/height). Plain numbers(eg. `300`) are automatically converted to `300px`. Values starting with `--` (eg. `--name`) are automatically converted to `var(--name)`. Trailing and leading spaces are removed. 
 
 You can set either only the width or the height, leave the other blank, and the image should retain its aspect ratio. If it doesn't, try going into config, and change `empty_means` to `auto`.
 

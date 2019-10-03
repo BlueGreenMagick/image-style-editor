@@ -38,6 +38,8 @@ class UI(QWidget):
         for s in styles:
             if re.match(r"^\d+?(\.\d+?)?$", styles[s]) is not None:
                 styles[s] += "px"
+            elif re.match(r"^--.+$", styles[s]) is not None:
+                styles[s]  = "var(" + styles[s] + ")"
         self.main.modify_styles(styles)
         self.close()
 
@@ -78,13 +80,18 @@ class UI(QWidget):
 
     def check_valid_input(self, inp):
         valids = ["", "auto", "inherit", "initial", "unset"]
-        valid_re = r"^\d+(?:\.\d+)?(?:px|cm|mm|in|pc|pt|ch|em|ex|rem|%|vw|vh|vmin|vmax)?$|^(?:var|calc|attr)\([\s\S]*\)$"
+        valid_re = [
+            r"^\d+(?:\.\d+)?(?:px|cm|mm|in|pc|pt|ch|em|ex|rem|%|vw|vh|vmin|vmax)?$",
+            r"^(?:var|calc|attr)\([\s\S]*\)$",
+            r"^--.+$"
+            ]
         if inp in valids:
             return True
-        elif re.match(valid_re, inp) is not None:
-            return True
-        else:
-            return False
+        else: 
+            for r in valid_re:
+                if re.match(r, inp) is not None:
+                    return True
+        return False
 
     def onchange(self, text, val_label):
         if self.check_valid_input(text):
