@@ -29,11 +29,11 @@ class UI(QWidget):
             "height": self.heightEdit.text().strip()
         }
         if self.config["min-size"]:
-            styles["min-width"] = self.min-widthEdit.text().strip()
-            styles["min-height"] = self.min-heightEdit.text().strip()
+            styles["min-width"] = self.minWidthEdit.text().strip()
+            styles["min-height"] = self.minHeightEdit.text().strip()
         if self.config["max-size"]:
-            styles["max-width"] = self.max-widthEdit.text().strip()
-            styles["max-height"] = self.max-heightEdit.text().strip()
+            styles["max-width"] = self.maxWidthEdit.text().strip()
+            styles["max-height"] = self.maxHeightEdit.text().strip()
 
         for s in styles:
             if re.match(r"^\d+?(\.\d+?)?$", styles[s]) is not None:
