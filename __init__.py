@@ -49,16 +49,18 @@ class UI(QWidget):
                 styles[s]  = "var(" + styles[s] + ")"
 
         # check if occl widgets exists
-        try:
+        try: 
             occl_all_note = self.occlAllNote.isChecked()
+            occl_note = True #all occl notes have this widget
         except AttributeError: 
             occl_all_note = False
+            occl_note = False
         try:
             occl_all_fld = self.occlAllFld.isChecked()
         except AttributeError:
             occl_all_fld = False 
 
-        if occl_all_fld or occl_all_note:
+        if occl_note:
             self.main.occl_modify_styles(styles, occl_all_fld, occl_all_note)
         else:
             self.main.modify_styles(styles)
@@ -293,6 +295,7 @@ class Main:
         self.occl_flds = mw.addonManager.getConfig(__name__)["zzimage-occlusion-field-position"] 
         for i in range(len(self.occl_flds)):
             self.occl_flds[i] = self.occl_flds[i] - 1 #1-based to 0-based 
+        self.hidden_div = "<div style='visibility: hidden !important;'>HIDDEN DIV FROM IMAGE-SIZE-EDITOR</div>"
 
     def fill_in(self, styles, original):
         if self.style_editor:
@@ -432,11 +435,28 @@ class Main:
     def modify_fields(self, fldval):
         editor = self.editor
         curr_fld = self.prev_curr_field
+        if mw.addonManager.getConfig(__name__)["hidden-div-for-image-only-field"]:
+            if self.hidden_div not in fldval:
+                if re.match(r"^[\s]*<img[^>]*>[\s]*$", fldval):
+                    fldval += self.hidden_div
         editor.note.fields[curr_fld] = fldval
         editor.note.flush()
         editor.loadNote(focusTo=curr_fld)
 
     def occl_modify_fields(self, fldn, fldval):
+        try:
+            config = self.style_editor.config
+        except AttributeError:
+            config = mw.addonManager.getConfig(__name__)
+
+        #because of this bug in AnkiDroid. https://github.com/ankidroid/Anki-Android/issues/5166
+        if config["zzimage=occlusion-hiddendiv"]: 
+            div = self.hidden_div
+        else:
+            div = ""
+        if fldn == self.occl_flds[0]:
+            if div not in fldval:
+                fldval += div
         editor = self.editor
         for note in self.occl_notes:
             note.fields[fldn] = fldval

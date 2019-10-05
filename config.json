@@ -1,5 +1,6 @@
 {
     "empty_means": "",
+    "hidden-div-for-image-only-field": false,
     "max-size": false,
     "min-size": false,
     "zdefaults":{
@@ -14,6 +15,7 @@
 
     },
     "zzimage-occlusion-field-position":[3,4,10,11],
+    "zzimage=occlusion-hiddendiv": true,
     "zzimage-occlusion-id-field":"ID (hidden)",
     "zzimage-occlusion-note-type": "Image Occlusion Enhanced"
 }
