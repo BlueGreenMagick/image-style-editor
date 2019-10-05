@@ -327,7 +327,7 @@ class Main:
         occl_id_fld_name = mw.addonManager.getConfig(__name__)["zzimage-occlusion-id-field"]
         occln_id = self.editor.note[occl_id_fld_name]
         if occln_id is None or occln_id.count("-") != 2:
-            msg = "Invalid Note, or a bug. No need to restart however."
+            msg = "ERROR: Invalid Note, or a bug. Probably no need to restart however.\n"
             sys.stderr.write(msg)
         occl_id_grps = occln_id.split('-')
         uniq_id = occl_id_grps[0]
