@@ -1,6 +1,6 @@
 # Image Style Editor
 
-This is an addon for editing image width and height. 
+This is an addon mainly for editing image width and height. 
 
 ## How to use
 
@@ -16,7 +16,25 @@ You can set either only the width or the height, leave the other blank, and the 
 * You can modify width and height individually for each image
 * Can't automatically resize images on paste.
 
+## Image Occlusion Support
+This addon supports Image Occlusion Enhanced fully. The image styles can be edited on created Image Occlusion cards.
+
+* For mask/original image fields, if both `Apply to all notes` and `Apply to all fields` are checked, the styles will be applied to all the images in other notes and other fields as well.
+* Checking only `Apply to all notes`, the style is applied to images from only that field in all other notes. 
+* `Apply to all fields` does not apply the styles to images that are not original image, or masks. 
+* `Apply to all notes` on non mask/original image will set the field values of all other notes, to that note's field's value, not just the image style.
+* If you have modified any field name or position, or the note type name, the addon needs to be configured before using it on Image Occlusion cards.
+
+## AnkiDroid Users
+
+* Due to a [bug](https://github.com/ankidroid/Anki-Android/issues/5166) in AnkiDroid, if the note type uses conditional replacement, the note may become blank. Setting `hidden-div-for-image-only-field` to `true` before using editing image style should fix the issue. 
+
+## Ankiweb
+
+https://ankiweb.net/shared/info/1593969147
+
 ## Credits
 
-Credits to searene, developer of the addon [ImageResizer](https://github.com/searene/Anki-Addons/tree/master/ImageResizer)'. Some of the code for gui were reused in this addon. 
+Thanks to searene, developer of the addon [ImageResizer](https://github.com/searene/Anki-Addons/tree/master/ImageResizer)'. Some of the code for gui were reused in this addon. 
 Also to glutanimate(Aristotelis P.) and others who made the addon [Image Occlusion Enhanced](https://github.com/glutanimate/image-occlusion-enhanced), which was how I figured this addon would be possible to make.
+Thanks to AnKing for several feature suggestions.
