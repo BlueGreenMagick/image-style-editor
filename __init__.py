@@ -295,7 +295,8 @@ class Main:
         self.occl_flds = mw.addonManager.getConfig(__name__)["zzimage-occlusion-field-position"] 
         for i in range(len(self.occl_flds)):
             self.occl_flds[i] = self.occl_flds[i] - 1 #1-based to 0-based 
-        self.hidden_div = "<div style='visibility: hidden !important;'>HIDDEN DIV FROM IMAGE-SIZE-EDITOR</div>"
+        # single quotes are auto changed to double quotes. So must be double quotes.
+        self.hidden_div = """<div style="display:none !important;">HIDDEN DIV FROM IMAGE-SIZE-EDITOR</div>"""
 
     def fill_in(self, styles, original):
         if self.style_editor:
@@ -388,12 +389,13 @@ class Main:
         try{{
             var div = document.createElement("div");
             div.innerHTML = "{}";
-            styles = JSON.parse("{}")
-            e = div.querySelector('img[src="{}"]')
-            for(a in styles){{
+            var styles = JSON.parse("{}")
+            var e = div.querySelector('img[src="{}"]')
+            for(var a in styles){{
                 e.style[a] = styles[a]
             }}
             pycmd("htmlReturn#" + div.innerHTML);
+            div.remove()
         }}catch(err){{
             pycmd("err#" + err)
         }}
@@ -412,9 +414,9 @@ class Main:
             var e = div.querySelector('img[src="{}"]')
             returnStyling = function(){{
                 if(e.complete){{
-                for(a = 0; a < css_names.length; a++){{
-                    val = e.style[css_names[a]]
-                    if(val){{styles[css_names[a]] = val}}
+                    for(var a = 0; a < css_names.length; a++){{
+                        val = e.style[css_names[a]]
+                        if(val){{styles[css_names[a]] = val}}
                 }}
                 original = {{"height": e.naturalHeight, "width": e.naturalWidth}}
                 d = {{"s":styles,"o":original}}
