@@ -1,5 +1,8 @@
 {
     "empty_means": "",
+    "image-occlusion-field-position":[3,4,10,11],
+    "image-occlusion-id-field":"ID (hidden)",
+    "image-occlusion-note-type": "Image Occlusion Enhanced",
     "max-size": false,
     "min-size": false
 }

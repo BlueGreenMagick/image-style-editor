@@ -9,18 +9,21 @@ import re
 
 from aqt import mw
 from aqt.editor import EditorWebView, Editor
-from aqt.qt import *
+from aqt.qt import QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
 from anki.hooks import addHook, runHook, wrap
+
 
 
 class UI(QWidget):
 
-    def __init__(self, main, editor, img_name):
+    def __init__(self, main, editor, img_name, is_occl, curr_fld):
         super(UI, self).__init__()
         self.editor = editor
         self.image_name = img_name
         self.main = main
         self.config = mw.addonManager.getConfig(__name__)
+        self.is_occl = is_occl
+        self.curr_fld = curr_fld
         self.setupUI()
 
     def clicked_ok(self):
@@ -40,7 +43,22 @@ class UI(QWidget):
                 styles[s] += "px"
             elif re.match(r"^--.+$", styles[s]) is not None:
                 styles[s]  = "var(" + styles[s] + ")"
-        self.main.modify_styles(styles)
+
+        # check if occl widgets exists
+        try:
+            occl_all_note = self.occlAllNote.isChecked()
+        except AttributeError: 
+            occl_all_note = False
+        try:
+            occl_all_fld = self.occlAllFld.isChecked()
+        except AttributeError:
+            occl_all_fld = False 
+
+        if occl_all_fld or occl_all_note:
+            self.main.occl_modify_styles(styles, occl_all_fld, occl_all_note)
+        else:
+            self.main.modify_styles(styles)
+
         self.close()
 
     def clicked_cancel(self):
@@ -206,6 +224,25 @@ class UI(QWidget):
         sizeLayout2.addWidget(self.originalHeight)
         mainLayout.addLayout(sizeLayout2)
 
+        # add Image Occlusion related buttons
+        if self.is_occl:
+            mainLayout.addWidget(self.hLine())
+            occlLabel = QLabel("Image Occlusion")
+            occlLabel.setStyleSheet("QLabel {font-weight : bold;}")            
+            mainLayout.addWidget(occlLabel)
+            occlAllNote = QCheckBox("Apply to all occl notes")
+            self.occlAllNote = occlAllNote
+            occlAllNote.setChecked(True)
+            occlLayout = QHBoxLayout()
+            occlLayout.addWidget(occlAllNote)
+            if self.curr_fld in self.main.occl_flds:
+                occlAllFld = QCheckBox("Apply to all fields")
+                self.occlAllFld = occlAllFld
+                occlAllFld.setChecked(True)
+                occlLayout.addWidget(occlAllFld)
+            mainLayout.addLayout(occlLayout)
+            
+
         # add buttons
         okButton = QPushButton("OK")
         okButton.clicked.connect(self.clicked_ok)
@@ -227,27 +264,81 @@ class UI(QWidget):
         self.setWindowTitle('Style Editor')
         self.show()
 
-
 class Main:
 
     def __init__(self):
         self.prev_curr_field = None
+        self.occl_flds = mw.addonManager.getConfig(__name__)["image-occlusion-field-position"] 
+        for i in range(len(self.occl_flds)):
+            self.occl_flds[i] = self.occl_flds[i] - 1 #1-based to 0-based 
 
     def fill_in(self, styles, original):
         if self.style_editor:
             self.style_editor.set_prev_styles(styles)
             self.style_editor.fill_in(styles, original)
 
-    def open_edit_window(self, editor, name):
+    def open_edit_window(self, editor, name, is_occl):
         self.editor = editor
         self.name = name
-        self.style_editor = UI(self, editor, name)
+        self.style_editor = UI(self, editor, name, is_occl, self.prev_curr_field)
         editor.saveNow(self.get_styles)
 
     def escape(self, s):
         s = s.replace('"', '\\"')
         s = s.replace("'", "\\'")
         return s
+
+    def get_occl_notes(self):
+        """
+        https://github.com/glutanimate/image-occlusion-enhanced/blob/ad092efa5bed559de42ac38d09069fc33c5a458f/src/image_occlusion_enhanced/add.py#L122
+        https://github.com/glutanimate/image-occlusion-enhanced/blob/03071c1b25afbbcf3b990157a52cfadb959416a6/src/image_occlusion_enhanced/ngen.py#L101
+        https://github.com/glutanimate/image-occlusion-enhanced/blob/03071c1b25afbbcf3b990157a52cfadb959416a6/src/image_occlusion_enhanced/ngen.py#L234
+        """
+        occl_id_fld_name = mw.addonManager.getConfig(__name__)["image-occlusion-id-field"]
+        occln_id = self.editor.note[occl_id_fld_name]
+        if occln_id is None or occln_id.count("-") != 2:
+            msg = "Invalid Note, or a bug. No need to restart however."
+            sys.stderr.write(msg)
+        occl_id_grps = occln_id.split('-')
+        uniq_id = occl_id_grps[0]
+        occl_tp = occl_id_grps[1]
+        occl_id = '%s-%s' % (uniq_id, occl_tp)
+        query = "'%s':'%s*'" % (occl_id_fld_name, occl_id)
+        res = mw.col.findNotes(query)
+        note_arr = []
+        for nid in res:
+            note_arr.append(mw.col.getNote(nid))
+        return note_arr
+    
+    def occl_web_eval(self, fldval, styles, fldn):
+        e = self.escape
+        self.editor.web.eval("""
+            try{{
+                var div = document.createElement("div");
+                div.innerHTML = "{}";
+                styles = JSON.parse("{}")
+                e = div.querySelector('img')
+                for(a in styles){{
+                    e.style[a] = styles[a]
+                }}
+                pycmd("occlReturn#{}#" + div.innerHTML);
+            }}catch(err){{
+                pycmd("err#" + err)
+            }}
+        """.format(e(fldval), e(json.dumps(styles)), str(fldn)))
+
+    def occl_modify_styles(self, styles, all_fld, all_notes):
+        if all_notes:
+            self.occl_notes = self.get_occl_notes()
+        else:
+            self.occl_notes = [self.editor.note]
+        if all_fld:
+            for fldn in self.occl_flds:
+                fldval = self.editor.note.fields[fldn]
+                self.occl_web_eval(fldval, styles, fldn)
+        else:
+            fldval = self.editor.note.fields[self.prev_curr_field]
+            self.occl_web_eval(fldval, styles, self.prev_curr_field)
 
     def modify_styles(self, styles):
         """
@@ -262,8 +353,8 @@ class Main:
                 styles["width"] = empty_replacer
 
         e = self.escape
-        cur_fld = self.prev_curr_field
-        fld = self.editor.note.fields[cur_fld]
+        curr_fld = self.prev_curr_field
+        fldval = self.editor.note.fields[curr_fld]
         self.editor.web.eval("""
         try{{
             var div = document.createElement("div");
@@ -277,12 +368,12 @@ class Main:
         }}catch(err){{
             pycmd("err#" + err)
         }}
-        """.format(e(fld), e(json.dumps(styles)), e(self.name)))
+        """.format(e(fldval), e(json.dumps(styles)), e(self.name)))
 
     def get_styles(self):
         e = self.escape
-        cur_fld = self.prev_curr_field
-        fld = self.editor.note.fields[cur_fld]
+        curr_fld = self.prev_curr_field
+        fldval = self.editor.note.fields[curr_fld]
         self.editor.web.eval("""
         try{{
             css_names = ['width','height','min-height','min-width','max-height','max-width']
@@ -298,17 +389,28 @@ class Main:
             d = {{"s":styles,"o":original}}
             d = JSON.stringify(d)
             pycmd("getImageStyle#" + d)
+            div.remove()
         }}catch(err){{
             pycmd("err#" + err);
         }}
-        """.format(e(fld), e(self.name)))
+        """.format(e(fldval), e(self.name)))
 
-    def modify_fields(self, txt):
+    def modify_fields(self, fldval):
         editor = self.editor
-        cur_fld = self.prev_curr_field
-        editor.note.fields[cur_fld] = txt
+        curr_fld = self.prev_curr_field
+        editor.note.fields[curr_fld] = fldval
         editor.note.flush()
-        editor.loadNote(focusTo=cur_fld)
+        editor.loadNote(focusTo=curr_fld)
+
+    def occl_modify_fields(self, fldn, fldval):
+        editor = self.editor
+        for note in self.occl_notes:
+            note.fields[fldn] = fldval
+            note.flush()
+        #for some reason, note active in editor doesn't get modified
+        editor.note.fields[fldn] = fldval 
+        editor.note.flush()
+        editor.loadNote(focusTo=fldn)
 
 
 main = Main()
@@ -318,9 +420,13 @@ def addToContextMenu(self, m):
     context_data = self.page().contextMenuData()
     url = context_data.mediaUrl()
     image_name = url.fileName()
+    occl_name = mw.addonManager.getConfig(__name__)["image-occlusion-note-type"]
+    is_occl = False
+    if self.editor.note.model()["name"] == occl_name:
+        is_occl = True
     if url.isValid() and main.prev_curr_field is not None:
         a = m.addAction("Image Styles")
-        a.triggered.connect(lambda _, s=self.editor, n=image_name: main.open_edit_window(s, n))
+        a.triggered.connect(lambda _, s=self.editor, n=image_name, o=is_occl: main.open_edit_window(s, n, o))
 
 
 def onBridgeCmd(self, cmd, _old):
@@ -334,6 +440,13 @@ def onBridgeCmd(self, cmd, _old):
         cmd = cmd.replace("getImageStyle#", "")
         ret = json.loads(cmd)
         main.fill_in(ret["s"], ret["o"])
+    elif cmd.startswith("occlReturn#"):
+        cmd = cmd.replace("occlReturn#", "")
+        m = re.match(r"^(\d+)#([\s\S]*)$", cmd)
+        fldn = int(m.group(1)) #If m doesn't exist, anki will raise an error.
+        fldval = m.group(2)
+        main.occl_modify_fields(fldn, fldval)
+
     elif cmd.startswith("err#"):
         sys.stderr.write(cmd)
     else:
