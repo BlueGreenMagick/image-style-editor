@@ -1,9 +1,20 @@
 {
     "empty_means": "",
-    "image-occlusion-field-position":[3,4,10,11],
-    "image-occlusion-id-field":"ID (hidden)",
-    "image-occlusion-note-type": "Image Occlusion Enhanced",
     "max-size": false,
-    "min-size": false
+    "min-size": false,
+    "zdefaults":{
+        "width":"",
+        "height":"",
+        "min-width":"",
+        "min-height":"",
+        "max-width":"",
+        "max-height":"",
+        "Apply to all notes": true,
+        "Apply to all fields": true
+
+    },
+    "zzimage-occlusion-field-position":[3,4,10,11],
+    "zzimage-occlusion-id-field":"ID (hidden)",
+    "zzimage-occlusion-note-type": "Image Occlusion Enhanced"
 }
   

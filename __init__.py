@@ -11,7 +11,7 @@ from aqt import mw
 from aqt.editor import EditorWebView, Editor
 from aqt.qt import Qt, QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
 from anki.hooks import addHook, runHook, wrap
-
+from aqt.utils import tooltip
 
 
 class UI(QWidget):
@@ -25,9 +25,11 @@ class UI(QWidget):
         self.config = mw.addonManager.getConfig(__name__)
         self.is_occl = is_occl
         self.curr_fld = curr_fld
+        self.attr2qt = {}
+        self.styled_prop = ["width", "height", "min-width", "min-height", "max-width", "max-height"]
+        self.not_styled_prop = ["Apply to all notes", "Apply to all fields"]
         self.setupUI()
-
-
+        
     def clicked_ok(self):
         styles = {
             "width": self.widthEdit.text().strip(),
@@ -66,31 +68,43 @@ class UI(QWidget):
     def clicked_cancel(self):
         self.close()
 
-    def clicked_reset(self):
-        self.fill_in(self.prev_styles, self.original)
+    def clicked_defaults(self):
+        self.fill_defaults(True)
 
     def set_prev_styles(self, styles):
         self.prev_styles = styles
 
+    def qt_set_value(self, qtobj, val):
+        if type(qtobj) is QLineEdit:
+            qtobj.setText(val) 
+        elif type(qtobj) is QCheckBox:
+            qtobj.setChecked(val)
+
+    def fill_defaults(self, do_style):
+        attr2qt = self.attr2qt
+        styled = self.styled_prop
+        not_styled = self.not_styled_prop
+        zdefaults = self.config["zdefaults"]
+        for z in zdefaults:
+            if z in styled:
+                if do_style and z in attr2qt: #falsy default values need to be set too for overriding
+                        qtobj = attr2qt[z]
+                        self.qt_set_value(qtobj, zdefaults[z])
+            elif z in not_styled:
+                if z in attr2qt:
+                    qtobj = attr2qt[z]
+                    self.qt_set_value(qtobj, zdefaults[z])
+
     def fill_in(self, styles, original):
         self.original = original
+        self.fill_defaults(False)
+
+        attr2qt = self.attr2qt
         for a in styles:
             val = styles[a]
-            if a == "width":
-                self.widthEdit.setText(val)
-            elif a == "height":
-                self.heightEdit.setText(val)
-            else:
-                if self.config["min-size"]:
-                    if a == "min-width":
-                        self.minWidthEdit.setText(val)
-                    elif a == "min-height":
-                        self.minHeightEdit.setText(val)
-                if self.config["max-size"]:
-                    if a == "max-width":
-                        self.maxWidthEdit.setText(val)
-                    elif a == "max-height":
-                        self.maxHeightEdit.setText(val)
+            if a in attr2qt:
+                qtobj = attr2qt[a]
+                self.qt_set_value(qtobj, val)
 
         for o in original:
             if o == "width":
@@ -153,6 +167,8 @@ class UI(QWidget):
         self.widthEdit.textEdited.connect(lambda i, v=self.widthValidate: self.onchange(i, v))
         self.heightEdit = QLineEdit(self)
         self.heightEdit.textEdited.connect(lambda i, v=self.heightValidate: self.onchange(i, v))
+        self.attr2qt["width"] = self.widthEdit
+        self.attr2qt["height"] = self.heightEdit
 
         wLayout = QHBoxLayout()
         wLayout.addWidget(widthLabel)
@@ -191,7 +207,9 @@ class UI(QWidget):
             minLayout.addWidget(self.minHeightEdit)
             self.minWidthEdit.textEdited.connect(lambda i, v=self.widthValidate: self.onchange(i, v))
             self.minHeightEdit.textEdited.connect(lambda i, v=self.heightValidate: self.onchange(i, v))
-
+            self.attr2qt["min-width"] = self.minWidthEdit
+            self.attr2qt["min-height"] = self.minHeightEdit
+            
             mainLayout.addLayout(minLayout)
             mainLayout.addWidget(self.hLine())
 
@@ -207,6 +225,8 @@ class UI(QWidget):
             maxLayout.addWidget(self.maxHeightEdit)
             self.maxWidthEdit.textEdited.connect(lambda i, v=self.widthValidate: self.onchange(i, v))
             self.maxHeightEdit.textEdited.connect(lambda i, v=self.heightValidate: self.onchange(i, v))
+            self.attr2qt["max-width"] = self.maxWidthEdit
+            self.attr2qt["max-height"] = self.maxHeightEdit
 
             mainLayout.addLayout(maxLayout)
             mainLayout.addWidget(self.hLine())
@@ -232,16 +252,16 @@ class UI(QWidget):
             occlLabel = QLabel("Image Occlusion")
             occlLabel.setStyleSheet("QLabel {font-weight : bold;}")            
             mainLayout.addWidget(occlLabel)
-            occlAllNote = QCheckBox("Apply to all occl notes")
+            occlAllNote = QCheckBox("Apply to all notes")
             self.occlAllNote = occlAllNote
-            occlAllNote.setChecked(True)
             occlLayout = QHBoxLayout()
             occlLayout.addWidget(occlAllNote)
+            self.attr2qt["Apply to all notes"] = self.occlAllNote
             if self.curr_fld in self.main.occl_flds:
                 occlAllFld = QCheckBox("Apply to all fields")
                 self.occlAllFld = occlAllFld
-                occlAllFld.setChecked(True)
                 occlLayout.addWidget(occlAllFld)
+                self.attr2qt["Apply to all fields"] = self.occlAllFld
             mainLayout.addLayout(occlLayout)
             
 
@@ -250,8 +270,8 @@ class UI(QWidget):
         okButton.clicked.connect(self.clicked_ok)
         cancelButton = QPushButton("Cancel")
         cancelButton.clicked.connect(self.clicked_cancel)
-        resetButton = QPushButton("Reset")
-        resetButton.clicked.connect(self.clicked_reset)
+        resetButton = QPushButton("Default")
+        resetButton.clicked.connect(self.clicked_defaults)
 
         btnLayout = QHBoxLayout()
         btnLayout.addStretch(1)
@@ -270,7 +290,7 @@ class Main:
 
     def __init__(self):
         self.prev_curr_field = None
-        self.occl_flds = mw.addonManager.getConfig(__name__)["image-occlusion-field-position"] 
+        self.occl_flds = mw.addonManager.getConfig(__name__)["zzimage-occlusion-field-position"] 
         for i in range(len(self.occl_flds)):
             self.occl_flds[i] = self.occl_flds[i] - 1 #1-based to 0-based 
 
@@ -300,7 +320,7 @@ class Main:
         https://github.com/glutanimate/image-occlusion-enhanced/blob/03071c1b25afbbcf3b990157a52cfadb959416a6/src/image_occlusion_enhanced/ngen.py#L101
         https://github.com/glutanimate/image-occlusion-enhanced/blob/03071c1b25afbbcf3b990157a52cfadb959416a6/src/image_occlusion_enhanced/ngen.py#L234
         """
-        occl_id_fld_name = mw.addonManager.getConfig(__name__)["image-occlusion-id-field"]
+        occl_id_fld_name = mw.addonManager.getConfig(__name__)["zzimage-occlusion-id-field"]
         occln_id = self.editor.note[occl_id_fld_name]
         if occln_id is None or occln_id.count("-") != 2:
             msg = "Invalid Note, or a bug. No need to restart however."
@@ -434,7 +454,7 @@ def addToContextMenu(self, m):
     context_data = self.page().contextMenuData()
     url = context_data.mediaUrl()
     image_name = url.fileName()
-    occl_name = mw.addonManager.getConfig(__name__)["image-occlusion-note-type"]
+    occl_name = mw.addonManager.getConfig(__name__)["zzimage-occlusion-note-type"]
     is_occl = False
     if self.editor.note.model()["name"] == occl_name:
         is_occl = True
