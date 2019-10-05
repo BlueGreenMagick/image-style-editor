@@ -382,20 +382,28 @@ class Main:
         fldval = self.editor.note.fields[curr_fld]
         self.editor.web.eval("""
         try{{
-            css_names = ['width','height','min-height','min-width','max-height','max-width']
-            styles = {{}}
+            var css_names = ['width','height','min-height','min-width','max-height','max-width']
+            var styles = {{}}
             var div = document.createElement("div");
             div.innerHTML = "{}"
-            e = div.querySelector('img[src="{}"]')
-            for(a = 0; a < css_names.length; a++){{
-                val = e.style[css_names[a]]
-                if(val){{styles[css_names[a]] = val}}
+            var e = div.querySelector('img[src="{}"]')
+            returnStyling = function(){{
+                if(e.complete){{
+                for(a = 0; a < css_names.length; a++){{
+                    val = e.style[css_names[a]]
+                    if(val){{styles[css_names[a]] = val}}
+                }}
+                original = {{"height": e.naturalHeight, "width": e.naturalWidth}}
+                d = {{"s":styles,"o":original}}
+                d = JSON.stringify(d)
+                pycmd("getImageStyle#" + d)
+                div.remove()
+                }}else{{
+                    setTimeout(returnStyling,15)
+                }}
             }}
-            original = {{"height": e.naturalHeight, "width": e.naturalWidth}}
-            d = {{"s":styles,"o":original}}
-            d = JSON.stringify(d)
-            pycmd("getImageStyle#" + d)
-            div.remove()
+            returnStyling()
+
         }}catch(err){{
             pycmd("err#" + err);
         }}
