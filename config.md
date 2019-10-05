@@ -28,7 +28,7 @@ If you haven't changed the note type name or field names or positions in Image O
 If you have, please make sure before using this addon, that the **id field** is in **position 1**, and the below three configs(1, 3, 4) are set correctly. And the first number from `zzimage-occlusion-field-position` is the 'Image' field's position.
 
 - `zzimage-occlusion-field-position`(list of number): The positions of image fields of `Image Occlusion Enhanced` note type. If you haven't changed it, the default is: `[3,4,10,11]`.
-- `zzimage=occlusion-hiddendiv`(true/false): Adds hidden div in 'Image' field. Must set it to `true` if using AnkiDroid, due to a bug. Default: `true`.
+- `zzimage-occlusion-hidden-div`(true/false): Adds hidden div in 'Image' field. Must set it to `true` if using AnkiDroid, due to a bug. Default: `true`.
 - `zzimage-occlusion-id-field`(string): Name of the id field of `Image Occlusion Enhanced` note type. If you haven't changed it, the default is: `ID (hidden)`.
 - `zzimage-occl-note-type`(string): Name of the `Image Occlusion Enhanced` note type. Default: `"Image Occlusion Enhanced"`.
 

@@ -15,7 +15,7 @@
 
     },
     "zzimage-occlusion-field-position":[3,4,10,11],
-    "zzimage=occlusion-hiddendiv": true,
+    "zzimage-occlusion-hidden-div": true,
     "zzimage-occlusion-id-field":"ID (hidden)",
     "zzimage-occlusion-note-type": "Image Occlusion Enhanced"
 }

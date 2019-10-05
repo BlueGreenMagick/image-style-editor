@@ -452,7 +452,7 @@ class Main:
             config = mw.addonManager.getConfig(__name__)
 
         #because of this bug in AnkiDroid. https://github.com/ankidroid/Anki-Android/issues/5166
-        if config["zzimage=occlusion-hiddendiv"]: 
+        if config["zzimage-occlusion-hidden-div"]: 
             div = self.hidden_div
         else:
             div = ""
