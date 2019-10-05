@@ -21,9 +21,9 @@ This addon supports Image Occlusion Enhanced fully. The image styles can be edit
 
 * For mask/original image fields, if both `Apply to all notes` and `Apply to all fields` are checked, the styles will be applied to all the images in other notes and other fields as well.
 * Checking only `Apply to all notes`, the style is applied to images from only that field in all other notes. 
-* `Apply to all fields` does not apply the styles to images that are not original image, or masks. 
+* `Apply to all fields` only apply styles to images that are in original image, or mask fields. 
 * `Apply to all notes` on non mask/original image will set the field values of all other notes, to that note's field's value, not just the image style.
-* If you have modified any field name or position, or the note type name, the addon needs to be configured before using it on Image Occlusion cards.
+**Note**: If you have modified any field name or position, or the notetype name on Image Occlusion Enhanced notetype, the addon's configuration needs to be adjusted before using it on Image Occlusion cards.
 
 ## AnkiDroid Users
 
