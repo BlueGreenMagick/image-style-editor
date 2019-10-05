@@ -9,7 +9,7 @@ import re
 
 from aqt import mw
 from aqt.editor import EditorWebView, Editor
-from aqt.qt import QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
+from aqt.qt import Qt, QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
 from anki.hooks import addHook, runHook, wrap
 
 
@@ -18,6 +18,7 @@ class UI(QWidget):
 
     def __init__(self, main, editor, img_name, is_occl, curr_fld):
         super(UI, self).__init__()
+        self.setAttribute(Qt.WA_DeleteOnClose)
         self.editor = editor
         self.image_name = img_name
         self.main = main
@@ -25,6 +26,7 @@ class UI(QWidget):
         self.is_occl = is_occl
         self.curr_fld = curr_fld
         self.setupUI()
+
 
     def clicked_ok(self):
         styles = {
@@ -278,6 +280,10 @@ class Main:
             self.style_editor.fill_in(styles, original)
 
     def open_edit_window(self, editor, name, is_occl):
+        try:
+            self.style_editor.close()
+        except Exception:
+            pass
         self.editor = editor
         self.name = name
         self.style_editor = UI(self, editor, name, is_occl, self.prev_curr_field)
