@@ -1,9 +1,9 @@
 ## Image Style Editor
 
-Please note that modifying a configuration may need a restart for it to apply.
+Please note that some of the configurations may need a restart for any modifications to be applied.
 
 - `empty_means`(string): If either width or height field is empty and the other is not, the empty field will be set to the string. For example, `auto`, `inherit`, etc. Default: `""`.
-- `hidden-div-for-image-only-field`(true/false): If your notetype uses conditional replacement, and use AnkiDroid, set it to `true` or the image may not show due to a bug in AnkiDroid. Default: `false`.
+- `hidden-div-for-image-only-field`(true/false): If your notetype uses conditional replacement, and you use AnkiDroid, set it to `true` or the image may not show due to a bug in AnkiDroid. Default: `false`.
 - `max-size`(true/false): If set to `true`, you can edit `max-width` and `max-height` property. Default: `false`.
 - `min-size`(true/false): If set to `true`, you can edit `min-width` and `min-height` property. Default: `false`.
 
