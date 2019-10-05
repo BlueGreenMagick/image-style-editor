@@ -439,7 +439,7 @@ class Main:
         curr_fld = self.prev_curr_field
         if mw.addonManager.getConfig(__name__)["hidden-div-for-image-only-field"]:
             if self.hidden_div not in fldval:
-                if re.match(r"^[\s]*<img[^>]*>[\s]*$", fldval):
+                if re.match(r"^(?:\s|(?:<br>))*<img[^>]*>(?:\s|(?:<br>))*$", fldval):
                     fldval += self.hidden_div
         editor.note.fields[curr_fld] = fldval
         editor.note.flush()
