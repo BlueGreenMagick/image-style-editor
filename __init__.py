@@ -416,7 +416,7 @@ class Main:
         #for some reason, note active in editor doesn't get modified
         editor.note.fields[fldn] = fldval 
         editor.note.flush()
-        editor.loadNote(focusTo=fldn)
+        editor.loadNote(focusTo=self.prev_curr_field)
 
 
 main = Main()
