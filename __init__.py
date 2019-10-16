@@ -270,6 +270,8 @@ class UI(QWidget):
         # add buttons
         okButton = QPushButton("OK")
         okButton.clicked.connect(self.clicked_ok)
+        okButton.setDefault(True)
+        okButton.setShortcut("Ctrl+Return")
         cancelButton = QPushButton("Cancel")
         cancelButton.clicked.connect(self.clicked_cancel)
         resetButton = QPushButton("Default")
