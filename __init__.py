@@ -249,7 +249,7 @@ class UI(QWidget):
         mainLayout.addLayout(sizeLayout2)
 
         # add Image Occlusion related buttons
-        if self.is_occl:
+        if self.is_occl and False: #Found critical bug. Disabling this button for now.
             mainLayout.addWidget(self.hLine())
             occlLabel = QLabel("Image Occlusion")
             occlLabel.setStyleSheet("QLabel {font-weight : bold;}")            
