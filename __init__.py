@@ -249,7 +249,7 @@ class UI(QWidget):
         mainLayout.addLayout(sizeLayout2)
 
         # add Image Occlusion related buttons
-        if self.is_occl and False: #Found critical bug. Disabling this button for now.
+        if self.is_occl:
             mainLayout.addWidget(self.hLine())
             occlLabel = QLabel("Image Occlusion")
             occlLabel.setStyleSheet("QLabel {font-weight : bold;}")            
@@ -259,7 +259,7 @@ class UI(QWidget):
             occlLayout = QHBoxLayout()
             occlLayout.addWidget(occlAllNote)
             self.attr2qt["Apply to all notes"] = self.occlAllNote
-            if self.curr_fld in self.main.occl_flds:
+            if self.curr_fld in self.main.all_occl_flds:
                 occlAllFld = QCheckBox("Apply to all fields")
                 self.occlAllFld = occlAllFld
                 occlLayout.addWidget(occlAllFld)
@@ -294,9 +294,9 @@ class Main:
 
     def __init__(self):
         self.prev_curr_field = None
-        self.occl_flds = mw.addonManager.getConfig(__name__)["zzimage-occlusion-field-position"] 
-        for i in range(len(self.occl_flds)):
-            self.occl_flds[i] = self.occl_flds[i] - 1 #1-based to 0-based 
+        self.all_occl_flds = mw.addonManager.getConfig(__name__)["zzimage-occlusion-field-position"] 
+        for i in range(len(self.all_occl_flds)):
+            self.all_occl_flds[i] = self.all_occl_flds[i] - 1 #1-based to 0-based 
         # single quotes are auto changed to double quotes. So must be double quotes.
         self.hidden_div = """<div style="display:none !important;">HIDDEN DIV FROM IMAGE-SIZE-EDITOR</div>"""
 
@@ -342,7 +342,7 @@ class Main:
             note_arr.append(mw.col.getNote(nid))
         return note_arr
     
-    def occl_web_eval(self, fldval, styles, fldn):
+    def occl_web_eval(self, fldval, styles, noten, fldn):
         e = self.escape
         self.editor.web.eval("""
             try{{
@@ -353,11 +353,11 @@ class Main:
                 for(a in styles){{
                     e.style[a] = styles[a]
                 }}
-                pycmd("occlReturn#{}#" + div.innerHTML);
+                pycmd("occlReturn#{}#{}#" + div.innerHTML);
             }}catch(err){{
                 pycmd("err#" + err)
             }}
-        """.format(e(fldval), e(json.dumps(styles)), str(fldn)))
+        """.format(e(fldval), e(json.dumps(styles)), str(noten), str(fldn)))
 
     def occl_modify_styles(self, styles, all_fld, all_notes):
         if all_notes:
@@ -365,12 +365,18 @@ class Main:
         else:
             self.occl_notes = [self.editor.note]
         if all_fld:
-            for fldn in self.occl_flds:
-                fldval = self.editor.note.fields[fldn]
-                self.occl_web_eval(fldval, styles, fldn)
+            self.occl_flds = self.all_occl_flds
         else:
-            fldval = self.editor.note.fields[self.prev_curr_field]
-            self.occl_web_eval(fldval, styles, self.prev_curr_field)
+            self.occl_flds = [self.prev_curr_field]
+
+        self.occl_rep_tot = len(self.occl_notes) * len(self.occl_flds)
+        self.occl_rep_cnt = 0
+        for noten in range(len(self.occl_notes)): 
+            for fldn in range(len(self.occl_flds)):
+                note = self.occl_notes[noten]
+                fld = self.occl_flds[fldn]
+                fldval = note.fields[fld]
+                self.occl_web_eval(fldval, styles, noten, fldn)
 
     def modify_styles(self, styles):
         """
@@ -447,7 +453,7 @@ class Main:
         editor.note.flush()
         editor.loadNote(focusTo=curr_fld)
 
-    def occl_modify_fields(self, fldn, fldval):
+    def occl_modify_fields(self, noten, fldn, fldval):
         try:
             config = self.style_editor.config
         except AttributeError:
@@ -458,17 +464,19 @@ class Main:
             div = self.hidden_div
         else:
             div = ""
-        if fldn == self.occl_flds[0]:
+        if fldn == self.all_occl_flds[0]:
             if div not in fldval:
                 fldval += div
         editor = self.editor
-        for note in self.occl_notes:
-            note.fields[fldn] = fldval
-            note.flush()
-        #for some reason, note active in editor doesn't get modified
-        editor.note.fields[fldn] = fldval 
-        editor.note.flush()
-        editor.loadNote(focusTo=self.prev_curr_field)
+        note = self.occl_notes[noten]
+        note.fields[self.occl_flds[fldn]] = fldval
+        note.flush()
+        self.occl_rep_cnt += 1
+        if self.occl_rep_cnt == self.occl_rep_tot:
+            note_id = self.editor.note.id
+            upd_note = mw.col.getNote(note_id)
+            editor.setNote(upd_note, focusTo=self.prev_curr_field)
+
 
 
 main = Main()
@@ -500,10 +508,11 @@ def onBridgeCmd(self, cmd, _old):
         main.fill_in(ret["s"], ret["o"])
     elif cmd.startswith("occlReturn#"):
         cmd = cmd.replace("occlReturn#", "")
-        m = re.match(r"^(\d+)#([\s\S]*)$", cmd)
-        fldn = int(m.group(1)) #If m doesn't exist, anki will raise an error.
-        fldval = m.group(2)
-        main.occl_modify_fields(fldn, fldval)
+        m = re.match(r"^(\d+)#(\d+)#([\s\S]*)$", cmd)
+        noten = int(m.group(1)) #If m doesn't exist, anki will raise an error.
+        fldn = int(m.group(2)) 
+        fldval = m.group(3)
+        main.occl_modify_fields(noten, fldn, fldval)
 
     elif cmd.startswith("err#"):
         sys.stderr.write(cmd)
