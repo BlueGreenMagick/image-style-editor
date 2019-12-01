@@ -6,12 +6,21 @@ import os
 import json
 import sys
 import re
+import unicodedata
 
 from aqt import mw
 from aqt.editor import EditorWebView, Editor
 from aqt.qt import Qt, QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
 from anki.hooks import addHook, runHook, wrap
-from aqt.utils import tooltip
+from aqt.utils import tooltip, showText
+
+VERSION_CP = "2.2"
+"""
+zzzversion-checkpoint history
+
+~ v2.1.1 temppatch : didn't exist
+v2.2 ~ : "2.2"
+"""
 
 
 class UI(QWidget):
@@ -525,7 +534,102 @@ def onBridgeCmd(self, cmd, _old):
 
 def onProfileLoaded():
     Editor.onBridgeCmd = wrap(Editor.onBridgeCmd, onBridgeCmd, "around")
+    if "zzz-version-checkpoint" not in mw.addonManager.getConfig(__name__): #version <= 2.1.1temppatch
+        fix_occlbug()  
+    else: # version >= 2.2
+        return
 
 
 addHook("EditorWebView.contextMenuEvent", addToContextMenu)
 addHook("profileLoaded", onProfileLoaded)
+
+
+def fix_occlbug():
+    mw.progress.start(immediate=True, label="Please wait, this should not take long")
+    nids = find_occlbug_affected_notes()
+    tag_notes(nids)
+    mw.progress.finish()
+    config  = mw.addonManager.getConfig(__name__)
+    mw.addonManager.writeConfig(__name__, config)
+    if len(nids) > 0:
+        showText("""
+PLEASE READ THIS CAREFULLY. You will only see this message once. (You can find the text in the addon page though)
+
+Sorry!!
+There was a bug in previous version of the addon 'Image Style Editor'.
+When editing image sizes in image occlusion notes, it made all the cards of the note have the same occlusion masks.
+A total of %d notes were found affected by the bug, and they were tagged "image-style-occl-bugged".
+
+To fix your notes, please do the following: 
+1. Click Browse, search for "tag:image-style-occl-bugged" (without quotes)
+2. For each note, remove "image-style-occl-bugged" tag, then press 'Edit Image Occlusion'(Ctrl + Shift + O) on top right. 
+3. Move one of the masks by 1mm. There needs to be a change to the note.
+4. Click 'Edit Cards' on the bottom.
+"""%len(nids))
+    file_path = os.path.join(os.path.dirname(__file__), 'config.json')
+    with open(file_path) as configjson:
+        data = json.load(configjson)
+    data["zzz-version-checkpoint"] = VERSION_CP
+    with open(file_path, 'w') as outfile:
+        json.dump(data, outfile)
+
+def find_occlbug_affected_notes():
+    occl_type_name = mw.addonManager.getConfig(__name__)["zzimage-occlusion-note-type"]
+    srch_term = "\"note:{}\"".format(occl_type_name) 
+    res = mw.col.findNotes(srch_term)
+
+    to_fix_nid = [] #only list 1 note of each occl_note
+
+    occl_id_fld_name = mw.addonManager.getConfig(__name__)["zzimage-occlusion-id-field"]
+    all_occl_flds = mw.addonManager.getConfig(__name__)["zzimage-occlusion-field-position"]
+    all_occl_flds.pop(0) #the original image will be same regardless of bug
+    all_occl_flds.pop(-1) #the original mask field will also be the same
+    for i in range(len(all_occl_flds)):
+        all_occl_flds[i] = all_occl_flds[i] - 1 #1-based to 0-based 
+    occl_note_vals = {} #occln_id: [[fld1s,], [fld2s,], [fld3s,]...]
+    for nid in res:
+        note = mw.col.getNote(nid)
+        occln_id = note[occl_id_fld_name]
+        occl_id_grps = occln_id.split('-')
+        uniq_id = occl_id_grps[0]
+        occl_tp = occl_id_grps[1]
+        occln_id = uniq_id + "-" + occl_tp
+        if occln_id not in occl_note_vals:
+            empty_list = []
+            for x in range(len(all_occl_flds)):
+                empty_list.append([])
+            occl_note_vals.update({occln_id : empty_list })
+        for f in range(len(all_occl_flds)):
+            fld = all_occl_flds[f]
+            print(occl_note_vals[occln_id][f])
+            print(note.fields[fld])
+            occl_note_vals[occln_id][f].append(note.fields[fld])
+    
+    to_fix_occl_nid = []
+    for note in occl_note_vals:
+        if len(occl_note_vals[note][0]) == 1:
+            continue
+        for fld in range(len(all_occl_flds)):
+            for i, e in enumerate(occl_note_vals[note][fld]):
+                cnt = 0
+                for j in range(i + 1, len(occl_note_vals[note][fld])):
+                    if e == occl_note_vals[note][fld][j]:
+                        if note not in to_fix_occl_nid:
+                            to_fix_occl_nid.append(note)
+        
+    for occl_nid in to_fix_occl_nid:
+        query = "'%s':'%s*'" % (occl_id_fld_name, occl_nid)
+        res = mw.col.findNotes(query)
+        note = mw.col.getNote(res[0])
+        to_fix_nid.append(note.id)
+    
+    return to_fix_nid
+
+def tag_notes(notes):
+    TAG = "image-style-occl-bugged"
+    for nid in notes:
+        note = mw.col.getNote(nid)
+        if TAG not in note.tags:
+            note.tags.append(TAG)
+        note.tags = mw.col.tags.canonify(note.tags)
+        note.flush()
