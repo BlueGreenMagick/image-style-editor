@@ -14,13 +14,18 @@ from aqt.qt import Qt, QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel
 from anki.hooks import addHook, runHook, wrap
 from aqt.utils import tooltip, showText
 
-VERSION_CP = "2.2"
+VERSION_CP = "2.3"
 """
 zzzversion-checkpoint history
 
 ~ v2.1.1 temppatch : didn't exist
-v2.2 ~ : "2.2"
+v2.2 : "2.2"
+v2.3 : "2.3"
 """
+
+config  = mw.addonManager.getConfig(__name__)
+config["zzz-version-checkpoint"] = VERSION_CP
+mw.addonManager.writeConfig(__name__, config)
 
 
 class UI(QWidget):
@@ -549,8 +554,6 @@ def fix_occlbug():
     nids = find_occlbug_affected_notes()
     tag_notes(nids)
     mw.progress.finish()
-    config  = mw.addonManager.getConfig(__name__)
-    mw.addonManager.writeConfig(__name__, config)
     if len(nids) > 0:
         showText("""
 PLEASE READ THIS CAREFULLY. You will only see this message once. (You can find the text in the addon page though)
@@ -566,12 +569,6 @@ To fix your notes, please do the following:
 3. Move one of the masks by 1mm. There needs to be a change to the note.
 4. Click 'Edit Cards' on the bottom.
 """%len(nids))
-    file_path = os.path.join(os.path.dirname(__file__), 'config.json')
-    with open(file_path) as configjson:
-        data = json.load(configjson)
-    data["zzz-version-checkpoint"] = VERSION_CP
-    with open(file_path, 'w') as outfile:
-        json.dump(data, outfile)
 
 def find_occlbug_affected_notes():
     occl_type_name = mw.addonManager.getConfig(__name__)["zzimage-occlusion-note-type"]
