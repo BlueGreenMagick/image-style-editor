@@ -591,6 +591,8 @@ def find_occlbug_affected_notes():
         note = mw.col.getNote(nid)
         occln_id = note[occl_id_fld_name]
         occl_id_grps = occln_id.split('-')
+        if len(occl_id_grps) < 1: #broken note
+            continue
         uniq_id = occl_id_grps[0]
         occl_tp = occl_id_grps[1]
         occln_id = uniq_id + "-" + occl_tp
