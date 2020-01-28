@@ -14,6 +14,26 @@ from aqt.qt import Qt, QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel
 from anki.hooks import addHook, runHook, wrap
 from aqt.utils import tooltip, showText
 
+"""
+
+-hooks: 
+EditorWebView.contextMenuEvent, profileLoaded
+
+-wraps: 
+Editor.onBridgeCmd
+
+-used methods/variables: 
+mw.addonManager.getConfig, mw.addonManager.writeConfig
+mw.col.findNotes, mw.col.getNote
+mw.col.tags.canonify
+mw.progress.start, mw.progress.finish
+note.tags, note.fields, note.flush, note.model, note.id, note[field]
+editor.note, editor.savenow, editor.loadNote, editor.setNote, editor.web.eval
+
+"""
+
+
+
 VERSION_CP = "2.3"
 """
 zzzversion-checkpoint history
