@@ -30,6 +30,9 @@ mw.progress.start, mw.progress.finish
 note.tags, note.fields, note.flush, note.model, note.id, note[field]
 editor.note, editor.savenow, editor.loadNote, editor.setNote, editor.web.eval
 
+
+uses pycmd "focus:..." from editor js
+
 """
 
 
