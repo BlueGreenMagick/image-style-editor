@@ -14,6 +14,12 @@ from aqt.qt import Qt, QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel
 from anki.hooks import addHook, runHook, wrap
 from aqt.utils import tooltip, showText
 
+try: 
+    from aqt.theme import theme_manager #v2.1.20+
+    night_mode = theme_manager.night_mode
+except:
+    night_mode = False
+
 """
 
 -hooks: 
@@ -29,7 +35,7 @@ mw.col.tags.canonify
 mw.progress.start, mw.progress.finish
 note.tags, note.fields, note.flush, note.model, note.id, note[field]
 editor.note, editor.savenow, editor.loadNote, editor.setNote, editor.web.eval
-
+theme_manager.night_mode
 
 uses pycmd "focus:..." from editor js
 
@@ -191,7 +197,10 @@ class UI(QWidget):
 
     def disableLineEdit(self, lineEdit):
         lineEdit.setReadOnly(True)
-        lineEdit.setStyleSheet("QLineEdit {background-color : lightgrey}")
+        if night_mode:
+            lineEdit.setStyleSheet("QLineEdit {background-color : #777;}")
+        else:
+            lineEdit.setStyleSheet("QLineEdit {background-color : lightgrey}")
 
     def setupUI(self):
         mainLayout = QVBoxLayout()
