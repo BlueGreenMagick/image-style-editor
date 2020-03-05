@@ -364,6 +364,7 @@ class Main:
     def escape(self, s):
         s = s.replace('"', '\\"')
         s = s.replace("'", "\\'")
+        s = s.replace("`", "\\`")
         return s
 
     def get_occl_notes(self):
@@ -464,7 +465,7 @@ class Main:
             var css_names = ['width','height','min-height','min-width','max-height','max-width']
             var styles = {{}}
             var div = document.createElement("div");
-            div.innerHTML = "{}"
+            div.innerHTML = `{}`
             var e = div.querySelector('img[src="{}"]')
             returnStyling = function(){{
                 if(e.complete){{
