@@ -43,13 +43,14 @@ uses pycmd "focus:..." from editor js
 
 
 
-VERSION_CP = "2.3"
+VERSION_CP = "2.4"
 """
 zzzversion-checkpoint history
 
 ~ v2.1.1 temppatch : didn't exist
 v2.2 : "2.2"
 v2.3 : "2.3"
+v2.4: "2.4"
 """
 
 config  = mw.addonManager.getConfig(__name__)
