@@ -463,26 +463,26 @@ class Main:
         self.editor.web.eval("""
         try{{
             var css_names = ['width','height','min-height','min-width','max-height','max-width']
-            var styles = {{}}
+            var styles = {{}};
             var div = document.createElement("div");
-            div.innerHTML = `{}`
-            var e = div.querySelector('img[src="{}"]')
+            div.innerHTML = `{}`;
+            var e = div.querySelector('img[src="{}"]');
             returnStyling = function(){{
                 if(e.complete){{
                     for(var a = 0; a < css_names.length; a++){{
-                        val = e.style[css_names[a]]
+                        val = e.style[css_names[a]];
                         if(val){{styles[css_names[a]] = val}}
                 }}
-                original = {{"height": e.naturalHeight, "width": e.naturalWidth}}
-                d = {{"s":styles,"o":original}}
-                d = JSON.stringify(d)
-                pycmd("getImageStyle#" + d)
-                div.remove()
+                original = {{"height": e.naturalHeight, "width": e.naturalWidth}};
+                d = {{"s":styles,"o":original}};
+                d = JSON.stringify(d);
+                pycmd("getImageStyle#" + d);
+                div.remove();
                 }}else{{
-                    setTimeout(returnStyling,15)
+                    setTimeout(returnStyling,15);
                 }}
             }}
-            returnStyling()
+            returnStyling();
 
         }}catch(err){{
             pycmd("err#" + err);
