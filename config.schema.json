@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Image Style Editor",
+  "properties": {
+    "empty_means": {
+      "title": "Empty means",
+      "description": "If either width or height field is empty and the other is not, the empty field will be set to the string. For example, `auto`, `inherit`, etc. ",
+      "type": "string",
+      "default": ""
+    },
+    "hidden-div-for-image-only-field": {
+      "title": "Hidden div for image only field",
+      "description": "If your notetype uses conditional replacement, and you use AnkiDroid, set it to `true` or the image may not show due to a bug in AnkiDroid.",
+      "type": "boolean",
+      "default": false
+    },
+    "max-size": {
+      "title": "Max size",
+      "description": "If set to `true`, you can edit `max-width` and `max-height` property.",
+      "type": "boolean",
+      "default": false
+    },
+    "min-size": {
+      "title": "Min size",
+      "description": "If set to `true`, you can edit `min-width` and `min-height` property.",
+      "type": "boolean",
+      "default": false
+    },
+    "zzimage-occlusion-hidden-div": {
+      "title": "Occlusion hidden div",
+      "description": "Adds hidden div in 'Image' field. Must set it to `true` if using AnkiDroid, due to a bug.",
+      "type": "boolean",
+      "default": true
+    },
+    "zzimage-occlusion-id-field": {
+      "title": "Occlusion hidden div",
+      "description": "Name of the id field of `Image Occlusion Enhanced` note type.",
+      "type": "string",
+      "default": "ID (hidden)"
+    },
+    "zzimage-occlusion-note-type": {
+      "title": "Occlusion note type name",
+      "description": "Name of the `Image Occlusion Enhanced` note type.",
+      "type": "string",
+      "default": "Image Occlusion Enhanced"
+    },
+    "zzz-version-checkpoint": {
+      "title": "Version checkpoint",
+      "description": "Please do not modify this string.",
+      "type": "string"
+    },
+    "zzimage-occlusion-field-position": {
+      "title": "Occlusion field position",
+      "description": "The positions of image fields of `Image Occlusion Enhanced` note type.",
+      "type": "array",
+      "items": {"type": "integer"},
+      "default": [3, 4, 10, 11]
+    },
+    "zdefaults":{
+      "type": "object",
+      "description": "Default values are put into the Image Style Editor if the image does not have any styling. You will still need to open the Image Style Editor and click 'Ok'.\nClicking 'Default' will override all fields with these values.",
+      "properties": {
+        "width": {
+          "type": "string",
+          "default": ""
+        },
+        "height": {
+          "type": "string",
+          "default": ""
+        },
+        "min-width": {
+          "type": "string",
+          "default": ""
+        },
+        "min-height": {
+          "type": "string",
+          "default": ""
+        },
+        "max-width": {
+          "type": "string",
+          "default": ""
+        },
+        "max-height": {
+          "type": "string",
+          "default": ""
+        },
+        "Apply to all notes": {
+          "type": "boolean",
+          "default": true
+        },
+        "Apply to all fields": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  }
+}
