@@ -34,7 +34,7 @@
       "default": true
     },
     "zzimage-occlusion-id-field": {
-      "title": "Occlusion hidden div",
+      "title": "Occlusion id field",
       "description": "Name of the id field of `Image Occlusion Enhanced` note type.",
       "type": "string",
       "default": "ID (hidden)"
