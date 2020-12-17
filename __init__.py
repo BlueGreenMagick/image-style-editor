@@ -498,7 +498,8 @@ class Main:
                 if re.match(r"^(?:\s|(?:<br>))*<img[^>]*>(?:\s|(?:<br>))*$", fldval):
                     fldval += self.hidden_div
         editor.note.fields[curr_fld] = fldval
-        editor.note.flush()
+        if not editor.addMode:
+            editor.note.flush()
         editor.loadNote(focusTo=curr_fld)
 
     def occl_modify_fields(self, noten, fldn, fldval):
@@ -518,7 +519,8 @@ class Main:
         editor = self.editor
         note = self.occl_notes[noten]
         note.fields[self.occl_flds[fldn]] = fldval
-        note.flush()
+        if not editor.addMode:
+            note.flush()
         self.occl_rep_cnt += 1
         if self.occl_rep_cnt == self.occl_rep_tot:
             note_id = self.editor.note.id
