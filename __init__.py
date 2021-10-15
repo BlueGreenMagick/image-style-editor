@@ -363,6 +363,7 @@ class Main:
         editor.saveNow(self.get_styles)
 
     def escape(self, s):
+        s = s.replace('\\', '\\\\')
         s = s.replace('"', '\\"')
         s = s.replace("'", "\\'")
         s = s.replace("`", "\\`")
