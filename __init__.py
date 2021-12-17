@@ -10,7 +10,7 @@ import unicodedata
 
 from aqt import mw
 from aqt.editor import EditorWebView, Editor
-from aqt.qt import Qt, QWidget, QDesktopWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
+from aqt.qt import Qt, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
 from anki.hooks import addHook, runHook, wrap
 from aqt.utils import tooltip, showText
 
@@ -330,9 +330,6 @@ class UI(QWidget):
         btnLayout.addWidget(cancelButton)
         btnLayout.addWidget(resetButton)
         mainLayout.addLayout(btnLayout)
-
-        # center the window
-        self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
 
         self.setWindowTitle('Style Editor')
         self.show()
