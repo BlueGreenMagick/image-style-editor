@@ -39,7 +39,7 @@ class UI(QWidget):
 
     def __init__(self, main, editor, img_name, is_occl, curr_fld):
         super(UI, self).__init__()
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.editor = editor
         self.image_name = img_name
         self.main = main
@@ -169,8 +169,8 @@ class UI(QWidget):
 
     def hLine(self):
         line = QFrame()
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
         return line
 
     def disableLineEdit(self, lineEdit):
