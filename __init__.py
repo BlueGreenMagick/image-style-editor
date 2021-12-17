@@ -450,12 +450,14 @@ class Main:
                     for(var a = 0; a < css_names.length; a++){{
                         val = e.style[css_names[a]];
                         if(val){{styles[css_names[a]] = val}}
-                }}
-                original = {{"height": e.naturalHeight, "width": e.naturalWidth}};
-                d = {{"s":styles,"o":original}};
-                d = JSON.stringify(d);
-                pycmd("getImageStyle#" + d);
-                div.remove();
+                    }}
+                    if (!styles.hasOwnProperty('width') && e.hasAttribute('width')) {{ styles.width = e.getAttribute('width') }}
+                    if (!styles.hasOwnProperty('height') && e.hasAttribute('height')) {{ styles.height = e.getAttribute('height') }}
+                    original = {{"height": e.naturalHeight, "width": e.naturalWidth}};
+                    d = {{"s":styles,"o":original}};
+                    d = JSON.stringify(d);
+                    pycmd("getImageStyle#" + d);
+                    div.remove();
                 }}else{{
                     setTimeout(returnStyling,15);
                 }}
