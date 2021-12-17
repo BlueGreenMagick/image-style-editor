@@ -10,7 +10,7 @@ import unicodedata
 
 from aqt import mw
 from aqt.editor import EditorWebView, Editor
-from aqt.qt import Qt, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
+from aqt.qt import QT_VERSION_STR, Qt, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
 from anki.hooks import addHook, runHook, wrap
 from aqt.utils import tooltip, showText
 
@@ -20,28 +20,7 @@ try:
 except:
     night_mode = False
 
-"""
-
--hooks: 
-EditorWebView.contextMenuEvent, profileLoaded
-
--wraps: 
-Editor.onBridgeCmd
-
--used methods/variables: 
-mw.addonManager.getConfig, mw.addonManager.writeConfig
-mw.col.findNotes, mw.col.getNote
-mw.col.tags.canonify
-mw.progress.start, mw.progress.finish
-note.tags, note.fields, note.flush, note.model, note.id, note[field]
-editor.note, editor.savenow, editor.loadNote, editor.setNote, editor.web.eval
-theme_manager.night_mode
-
-uses pycmd "focus:..." from editor js
-
-"""
-
-
+QT6 = QT_VERSION_STR.split(".")[0] == "6"
 
 VERSION_CP = "2.4"
 """
@@ -531,7 +510,10 @@ main = Main()
 
 
 def addToContextMenu(self, m):
-    context_data = self.page().contextMenuData()
+    if QT6:
+        context_data = self.lastContextMenuRequest()
+    else:
+        context_data = self.page().contextMenuData()
     url = context_data.mediaUrl()
     image_name = url.fileName()
     occl_name = mw.addonManager.getConfig(__name__)["zzimage-occlusion-note-type"]
