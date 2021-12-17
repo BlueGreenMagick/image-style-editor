@@ -518,7 +518,11 @@ def addToContextMenu(self, m):
     image_name = url.fileName()
     occl_name = mw.addonManager.getConfig(__name__)["zzimage-occlusion-note-type"]
     is_occl = False
-    if self.editor.note.model()["name"] == occl_name:
+    try:
+        note_type = self.editor.note.note_type()
+    except:
+        note_type = self.editor.note.model()
+    if note_type["name"] == occl_name:
         is_occl = True
     if url.isValid() and main.prev_curr_field is not None:
         a = m.addAction("Image Styles")
