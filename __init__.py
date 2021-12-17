@@ -2,17 +2,15 @@
 Anki Add-on: Image Style Editor
 """
 
-import os
 import json
 import sys
 import re
-import unicodedata
 
 from aqt import mw
-from aqt.editor import EditorWebView, Editor
+from aqt.editor import Editor
 from aqt.qt import QT_VERSION_STR, Qt, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame, QLineEdit, QCheckBox, QPushButton
 from anki.hooks import addHook, runHook, wrap
-from aqt.utils import tooltip, showText
+from aqt.utils import  showText
 
 try: 
     from aqt.theme import theme_manager #v2.1.20+
